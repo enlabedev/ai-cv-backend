@@ -1,0 +1,12 @@
+services:
+  db:
+    env_file:
+      - .env
+    image: postgres:17-alpine
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

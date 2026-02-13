@@ -1,98 +1,165 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🤖 AI-Powered CV Assistant (Backend)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> A modular NestJS backend that enables recruiters to have a natural conversation with my professional "Digital Twin". Powered by RAG (Retrieval-Augmented Generation), OpenAI, and a Clean Architecture approach.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-%23412991.svg?style=for-the-badge&logo=openai&logoColor=white)
 
-## Description
+## 📋 Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project is not just a chatbot; it's a demonstration of **Senior Backend Engineering practices**. It serves as an interactive portfolio where an AI answers questions about my experience, skills, and projects based on a dynamic context (CV), while also managing lead generation through a conversational flow.
 
-## Project setup
+### Key Features
+* **Modular Architecture:** Separation of concerns using Domain-Driven Design principles (Chat, Contact, RAG, AI, Notification).
+* **Dynamic RAG System:** The knowledge base (CV embeddings) is not hardcoded. It can be updated via API endpoints (`/knowledge/upload`) without redeploying.
+* **State Machine for Leads:** A dedicated `ContactModule` handles a multi-step flow to capture recruiter details (Name -> Phone -> Email -> Meeting) efficiently.
+* **Solid Engineering:**
+    * Strict Environment Validation (`Joi`).
+    * DTO Validation & Transformation (`class-validator`).
+    * Dependency Injection & Inversion of Control.
+    * Comprehensive Unit Testing (Service & Controller layers).
+* **Security:** CORS configuration, controlled Swagger exposure (dev-only), and input sanitization.
 
-```bash
-$ npm install
+---
+
+## 🏗️ Architecture
+
+The `ChatModule` acts as the orchestrator, delegating tasks to specialized domains:
+
+```mermaid
+graph TD
+    Client[Client / Frontend] -->|POST /chat| ChatController
+    ChatController --> ChatService
+    
+    subgraph "Core Domain"
+        ChatService -->|Check Intent| ContactService
+        ChatService -->|Get Context| RagService
+        ChatService -->|Generate Answer| AiService
+    end
+    
+    subgraph "Infrastructure"
+        ContactService -->|Persist| Postgres[(PostgreSQL)]
+        ContactService -->|Send Email| NotificationService
+        RagService -->|Vector Search| FileSystem/Memory
+        AiService -->|LLM Completion| OpenAI[OpenRouter / OpenAI]
+    end
+
 ```
 
-## Compile and run the project
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+* Node.js
+* PostgreSQL Database
+* An API Key from OpenRouter or OpenAI
+
+### 1. Installation
 
 ```bash
-# development
-$ npm run start
+# Clone the repository
+git clone [https://github.com/enlabedev/ai-cv-backend.git](https://github.com/enlabedev/ai-cv-backend.git)
 
-# watch mode
-$ npm run start:dev
+# Enter the directory
+cd ai-cv-backend
 
-# production mode
-$ npm run start:prod
+# Install dependencies
+npm install
+
 ```
 
-## Run tests
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory. You can copy the structure below:
+
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Database (PostgreSQL)
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=your_user
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=ai_cv_db
+
+# AI Provider (OpenRouter/OpenAI)
+OPENAI_API_KEY=sk-or-v1-your-api-key...
+
+# Email Service (SMTP)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+EMAIL_FROM="Enrique Lazo <noreply@yourdomain.com>"
+
+# RAG Storage
+EMBEDDINGS_FILE_PATH=./data/cv-embeddings.json
+
+```
+
+### 3. Running the App
 
 ```bash
-# unit tests
-$ npm run test
+# Development mode
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Production mode
+npm run build
+npm run start:prod
 
-# test coverage
-$ npm run test:cov
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 📚 API Documentation
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+When running in **development mode**, the Swagger documentation is automatically generated and accessible at:
+
+👉 **http://localhost:3000/api/docs**
+
+### Main Endpoints
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/chat` | Send a message to the AI. Handles both Q&A and Contact flows. |
+| `POST` | `/knowledge/upload` | Upload a new JSON file with CV embeddings to update the brain. |
+| `DELETE` | `/knowledge` | Clear the current knowledge base from memory and disk. |
+
+---
+
+## 🧪 Testing
+
+This project maintains high test coverage for critical business logic.
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Run unit tests
+npm run test
+
+# Run test coverage report
+npm run test:cov
+
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 🛠️ Tech Stack
 
-Check out a few resources that may come in handy when working with NestJS:
+* **Framework:** NestJS (Node.js)
+* **Language:** TypeScript
+* **Database:** PostgreSQL with TypeORM (Auto-load entities enabled)
+* **AI/ML:** OpenAI SDK (via OpenRouter), Vector Cosine Similarity (Custom implementation for performance)
+* **Email:** Nodemailer with Handlebars-like templating
+* **Docs:** Swagger (OpenAPI 3.0)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 👤 Author
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Enrique Lazo Bello** *Senior Full Stack Developer*
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
