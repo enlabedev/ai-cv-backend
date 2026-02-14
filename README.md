@@ -128,6 +128,7 @@ When running in **development mode**, the Swagger documentation is automatically
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `POST` | `/chat` | Send a message to the AI. Handles both Q&A and Contact flows. |
+| `POST` | `/contact` | Submit a contact form (name, email, phone, meeting_datetime, message). |
 | `POST` | `/knowledge/upload` | Upload a new JSON file with CV embeddings to update the brain. |
 | `DELETE` | `/knowledge` | Clear the current knowledge base from memory and disk. |
 
