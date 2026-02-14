@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -12,7 +13,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
  */
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 
   // Security
@@ -23,13 +24,13 @@ async function bootstrap() {
   });
 
   // Trust proxy for Nginx
-  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  app.set('trust proxy', 1);
 
   // Swagger Documentation
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('AI CV Chatbot API')
-      .setDescription('API for Enrique Lazo\'s virtual assistant')
+      .setDescription("API for Enrique Lazo's virtual assistant")
       .setVersion('1.0')
       .addTag('Chat')
       .addTag('Knowledge Base')
@@ -54,4 +55,4 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
-bootstrap();
+void bootstrap();

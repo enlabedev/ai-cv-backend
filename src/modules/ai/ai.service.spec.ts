@@ -22,7 +22,7 @@ jest.mock('openai', () => {
 
 describe('AiService', () => {
   let service: AiService;
-  let configServiceMock: any;
+  let configServiceMock: Record<string, jest.Mock>;
 
   beforeEach(async () => {
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
@@ -63,17 +63,27 @@ describe('AiService', () => {
   });
 
   it('debería manejar errores de la API al generar respuesta', async () => {
-    (service as any).openaiClient.chat.completions.create.mockRejectedValue(new Error('API Down'));
-    await expect(service.generateAnswer('Pregunta', 'Contexto'))
-      .rejects
-      .toThrow('AI service is not available at the moment.');
+    const client = (
+      service as unknown as {
+        openaiClient: { chat: { completions: { create: jest.Mock } } };
+      }
+    ).openaiClient;
+    client.chat.completions.create.mockRejectedValue(new Error('API Down'));
+    await expect(
+      service.generateAnswer('Pregunta', 'Contexto'),
+    ).rejects.toThrow('AI service is not available at the moment.');
   });
 
   it('debería manejar errores al crear embeddings', async () => {
-    (service as any).openaiClient.embeddings.create.mockRejectedValue(new Error('API Down'));
+    const client = (
+      service as unknown as {
+        openaiClient: { embeddings: { create: jest.Mock } };
+      }
+    ).openaiClient;
+    client.embeddings.create.mockRejectedValue(new Error('API Down'));
 
-    await expect(service.createEmbedding('Texto'))
-      .rejects
-      .toThrow('Failed to process text for search.');
+    await expect(service.createEmbedding('Texto')).rejects.toThrow(
+      'Failed to process text for search.',
+    );
   });
 });

@@ -7,9 +7,9 @@ import { AiService } from '../ai/ai.service';
 
 describe('ChatService', () => {
   let service: ChatService;
-  let contactServiceMock: any;
-  let ragServiceMock: any;
-  let aiServiceMock: any;
+  let contactServiceMock: Record<string, jest.Mock>;
+  let ragServiceMock: Record<string, jest.Mock>;
+  let aiServiceMock: Record<string, jest.Mock>;
 
   beforeAll(() => {
     jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
@@ -45,12 +45,19 @@ describe('ChatService', () => {
   it('debería continuar el flujo de contacto si existe uno activo', async () => {
     const mockContact = { id: 1, status: 'PENDING' };
     contactServiceMock.getActiveRequest.mockResolvedValue(mockContact);
-    contactServiceMock.processContactFlow.mockResolvedValue('¿Cuál es tu correo?');
+    contactServiceMock.processContactFlow.mockResolvedValue(
+      '¿Cuál es tu correo?',
+    );
 
     const result = await service.processMessage('Juan', 'session-1');
 
-    expect(contactServiceMock.getActiveRequest).toHaveBeenCalledWith('session-1');
-    expect(contactServiceMock.processContactFlow).toHaveBeenCalledWith(mockContact, 'Juan');
+    expect(contactServiceMock.getActiveRequest).toHaveBeenCalledWith(
+      'session-1',
+    );
+    expect(contactServiceMock.processContactFlow).toHaveBeenCalledWith(
+      mockContact,
+      'Juan',
+    );
     expect(result).toBe('¿Cuál es tu correo?');
     expect(aiServiceMock.detectContactIntent).not.toHaveBeenCalled();
   });
@@ -60,10 +67,17 @@ describe('ChatService', () => {
     aiServiceMock.detectContactIntent.mockReturnValue(true);
     contactServiceMock.initializeContactFlow.mockResolvedValue({});
 
-    const result = await service.processMessage('Quiero contactarlo', 'session-1');
+    const result = await service.processMessage(
+      'Quiero contactarlo',
+      'session-1',
+    );
 
-    expect(aiServiceMock.detectContactIntent).toHaveBeenCalledWith('Quiero contactarlo');
-    expect(contactServiceMock.initializeContactFlow).toHaveBeenCalledWith('session-1');
+    expect(aiServiceMock.detectContactIntent).toHaveBeenCalledWith(
+      'Quiero contactarlo',
+    );
+    expect(contactServiceMock.initializeContactFlow).toHaveBeenCalledWith(
+      'session-1',
+    );
     expect(result).toContain('¿cuál es tu nombre?');
   });
 
@@ -71,19 +85,31 @@ describe('ChatService', () => {
     contactServiceMock.getActiveRequest.mockResolvedValue(null);
     aiServiceMock.detectContactIntent.mockReturnValue(false);
     ragServiceMock.getRelevantContext.mockResolvedValue('Contexto del CV');
-    aiServiceMock.generateAnswer.mockResolvedValue('Enrique es experto en NestJS');
+    aiServiceMock.generateAnswer.mockResolvedValue(
+      'Enrique es experto en NestJS',
+    );
 
-    const result = await service.processMessage('¿Qué sabe hacer?', 'session-1');
+    const result = await service.processMessage(
+      '¿Qué sabe hacer?',
+      'session-1',
+    );
 
-    expect(ragServiceMock.getRelevantContext).toHaveBeenCalledWith('¿Qué sabe hacer?');
-    expect(aiServiceMock.generateAnswer).toHaveBeenCalledWith('¿Qué sabe hacer?', 'Contexto del CV');
+    expect(ragServiceMock.getRelevantContext).toHaveBeenCalledWith(
+      '¿Qué sabe hacer?',
+    );
+    expect(aiServiceMock.generateAnswer).toHaveBeenCalledWith(
+      '¿Qué sabe hacer?',
+      'Contexto del CV',
+    );
     expect(result).toBe('Enrique es experto en NestJS');
   });
 
   it('debería devolver mensaje de error amigable si el RAG falla', async () => {
     contactServiceMock.getActiveRequest.mockResolvedValue(null);
     aiServiceMock.detectContactIntent.mockReturnValue(false);
-    ragServiceMock.getRelevantContext.mockRejectedValue(new Error('Fallo de disco'));
+    ragServiceMock.getRelevantContext.mockRejectedValue(
+      new Error('Fallo de disco'),
+    );
 
     const result = await service.processMessage('Error', 'session-1');
 

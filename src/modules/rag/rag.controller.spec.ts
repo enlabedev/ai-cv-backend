@@ -5,7 +5,7 @@ import { RagService } from './rag.service';
 
 describe('RagController', () => {
   let controller: RagController;
-  let ragServiceMock: any;
+  let ragServiceMock: Record<string, jest.Mock>;
 
   beforeEach(async () => {
     ragServiceMock = {
@@ -47,6 +47,7 @@ describe('RagController', () => {
 
     it('debería lanzar BadRequestException si no se envía archivo', async () => {
       await expect(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         controller.uploadKnowledge(undefined as any),
       ).rejects.toThrow(BadRequestException);
     });

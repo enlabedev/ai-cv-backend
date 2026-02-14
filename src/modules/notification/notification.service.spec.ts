@@ -9,13 +9,13 @@ import { Logger } from '@nestjs/common';
 
 describe('NotificationService', () => {
   let service: NotificationService;
-  let mailerServiceMock: any;
-  let configServiceMock: any;
+  let mailerServiceMock: Record<string, jest.Mock>;
+  let configServiceMock: Record<string, jest.Mock>;
 
   beforeAll(() => {
-        jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
-        jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
-      })
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+  });
 
   beforeEach(async () => {
     mailerServiceMock = {
@@ -57,6 +57,7 @@ describe('NotificationService', () => {
     expect(mailerServiceMock.sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: mockPayload.email,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         subject: expect.stringContaining('Confirmación de Contacto'),
       }),
     );

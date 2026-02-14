@@ -31,6 +31,7 @@ describe('Security and Validation (e2e)', () => {
   });
 
   it('should have Helmet security headers', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const response = await request(app.getHttpServer()).get('/');
 
     expect(response.headers['x-dns-prefetch-control']).toBe('off');

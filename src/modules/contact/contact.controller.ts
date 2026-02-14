@@ -10,7 +10,9 @@ export class ContactController {
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 86400000 } })
-  async create(@Body() createContactDto: CreateContactDto): Promise<ContactRequest> {
+  async create(
+    @Body() createContactDto: CreateContactDto,
+  ): Promise<ContactRequest> {
     return this.contactService.createContact(createContactDto);
   }
 }

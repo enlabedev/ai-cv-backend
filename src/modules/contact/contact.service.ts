@@ -46,9 +46,7 @@ export class ContactService {
       status: ContactStatus.PENDING,
     });
 
-    this.logger.log(
-      `New contact flow started for session: ${sessionId}`,
-    );
+    this.logger.log(`New contact flow started for session: ${sessionId}`);
     return this.contactRepository.save(newRequest);
   }
 
@@ -71,7 +69,7 @@ export class ContactService {
     const savedRequest = await this.contactRepository.save(newRequest);
 
     // Trigger notification
-    this.triggerConfirmationEmail(savedRequest);
+    void this.triggerConfirmationEmail(savedRequest);
 
     return savedRequest;
   }
@@ -110,7 +108,7 @@ export class ContactService {
       request.status = ContactStatus.COMPLETED;
       await this.contactRepository.save(request);
 
-      this.triggerConfirmationEmail(request);
+      void this.triggerConfirmationEmail(request);
 
       return '¡Excelente! He registrado tus datos. Te hemos enviado un correo de confirmación y Enrique se pondrá en contacto contigo pronto.';
     }

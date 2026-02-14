@@ -67,9 +67,7 @@ export class AiService {
         'Could not generate a coherent response.'
       );
     } catch (error) {
-      this.logger.error(
-        `OpenAI/OpenRouter error: ${(error as Error).message}`,
-      );
+      this.logger.error(`OpenAI/OpenRouter error: ${(error as Error).message}`);
       throw new InternalServerErrorException(
         'AI service is not available at the moment.',
       );

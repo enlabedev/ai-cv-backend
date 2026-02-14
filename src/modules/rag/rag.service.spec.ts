@@ -11,8 +11,8 @@ jest.mock('fs/promises');
 
 describe('RagService', () => {
   let service: RagService;
-  let aiServiceMock: any;
-  let configServiceMock: any;
+  let aiServiceMock: Record<string, jest.Mock>;
+  let configServiceMock: Record<string, jest.Mock>;
 
   const validJson = JSON.stringify([
     { id: '1', text: 'Test Text', embedding: [0.1, 0.2] },
@@ -53,7 +53,9 @@ describe('RagService', () => {
 
       expect(count).toBe(1);
       expect(fsp.writeFile).toHaveBeenCalled();
-      expect((service as any).embeddings).toHaveLength(1);
+      expect(
+        (service as unknown as { embeddings: any[] }).embeddings,
+      ).toHaveLength(1);
     });
 
     it('debería crear el directorio si no existe', async () => {
@@ -91,7 +93,7 @@ describe('RagService', () => {
 
   describe('clearKnowledgeBase', () => {
     it('debería borrar el archivo y limpiar la memoria', async () => {
-      (service as any).embeddings = [{ id: '1' }];
+      (service as unknown as { embeddings: any[] }).embeddings = [{ id: '1' }];
 
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fsp.unlink as jest.Mock).mockResolvedValue(undefined);
@@ -99,7 +101,9 @@ describe('RagService', () => {
       await service.clearKnowledgeBase();
 
       expect(fsp.unlink).toHaveBeenCalled();
-      expect((service as any).embeddings).toHaveLength(0);
+      expect(
+        (service as unknown as { embeddings: any[] }).embeddings,
+      ).toHaveLength(0);
     });
 
     it('debería manejar errores de borrado silenciosamente', async () => {

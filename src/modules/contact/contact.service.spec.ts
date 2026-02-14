@@ -10,13 +10,13 @@ import { Logger } from '@nestjs/common';
 
 describe('ContactService', () => {
   let service: ContactService;
-  let mockRepository: any;
-  let mockNotificationService: any;
+  let mockRepository: Record<string, jest.Mock>;
+  let mockNotificationService: Record<string, jest.Mock>;
 
   beforeAll(() => {
-      jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
-      jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
-    })
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+  });
 
   beforeEach(async () => {
     mockRepository = {
