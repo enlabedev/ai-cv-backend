@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { envSchema } from './config/env.schema';
 import { AiModule } from './modules/ai/ai.module';
 import { RagModule } from './modules/rag/rag.module';
@@ -29,6 +31,12 @@ import { ChatModule } from './modules/chat/chat.module';
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     AiModule,
     RagModule,
     NotificationModule,
@@ -36,7 +44,12 @@ import { ChatModule } from './modules/chat/chat.module';
     ChatModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 /**
  * Root module of the application.

@@ -22,6 +22,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Trust proxy for Nginx
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   // Swagger Documentation
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
