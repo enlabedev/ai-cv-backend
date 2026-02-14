@@ -7,6 +7,7 @@ export interface ContactNotificationPayload {
   email: string;
   phone: string;
   contactDate: string;
+  message?: string;
 }
 
 /**
@@ -73,6 +74,7 @@ export class NotificationService {
           <li><b>Teléfono:</b> ${payload.phone}</li>
           <li><b>Correo:</b> ${payload.email}</li>
           <li><b>Preferencia de reunión:</b> ${payload.contactDate}</li>
+          ${payload.message ? `<li><b>Mensaje:</b> ${payload.message}</li>` : ''}
         </ul>
         <p style="color: #34495e; font-size: 16px;">
           Me pondré en contacto contigo lo antes posible para confirmar nuestra reunión.

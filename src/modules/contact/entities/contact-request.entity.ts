@@ -37,6 +37,9 @@ export class ContactRequest {
   @Column({ nullable: true })
   contactDate!: string;
 
+  @Column({ nullable: true })
+  message?: string;
+
   @Column({
     type: 'simple-enum',
     enum: ContactStatus,

@@ -6,6 +6,8 @@ import {
   ContactStatus,
 } from './entities/contact-request.entity';
 import { NotificationService } from '../notification/notification.service';
+import { CreateContactDto } from './dto/create-contact.dto';
+import { randomUUID } from 'crypto';
 
 /**
  * Service to manage contact request flows.
@@ -48,6 +50,30 @@ export class ContactService {
       `New contact flow started for session: ${sessionId}`,
     );
     return this.contactRepository.save(newRequest);
+  }
+
+  /**
+   * Creates a new contact request from the contact form.
+   * @param dto - The contact form data.
+   * @returns The created contact request.
+   */
+  async createContact(dto: CreateContactDto): Promise<ContactRequest> {
+    const newRequest = this.contactRepository.create({
+      sessionId: randomUUID(),
+      name: dto.name,
+      email: dto.email,
+      phone: dto.phone,
+      contactDate: dto.meeting_datetime,
+      message: dto.message,
+      status: ContactStatus.COMPLETED, // Directly completed as it's a form submission
+    });
+
+    const savedRequest = await this.contactRepository.save(newRequest);
+
+    // Trigger notification
+    this.triggerConfirmationEmail(savedRequest);
+
+    return savedRequest;
   }
 
   /**

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContactService } from './contact.service';
+import { ContactController } from './contact.controller';
 import { ContactRequest } from './entities/contact-request.entity';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ContactRequest]), NotificationModule],
+  controllers: [ContactController],
   providers: [ContactService],
   exports: [ContactService],
 })
