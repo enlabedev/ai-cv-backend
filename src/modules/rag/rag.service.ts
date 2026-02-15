@@ -30,11 +30,18 @@ export class RagService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly aiService: AiService,
   ) {
+    const isVercel = process.env.VERCEL === '1';
+    const defaultPath = isVercel 
+      ? '/tmp/cv-embeddings.json' 
+      : './data/cv-embeddings.json';
+
     const configuredPath = this.configService.get<string>(
       'EMBEDDINGS_FILE_PATH',
-      './data/cv-embeddings.json',
+      defaultPath,
     );
-    this.filePath = path.resolve(process.cwd(), configuredPath);
+    this.filePath = path.isAbsolute(configuredPath) 
+      ? configuredPath 
+      : path.resolve(process.cwd(), configuredPath);
   }
 
   onModuleInit() {
@@ -63,40 +70,35 @@ export class RagService implements OnModuleInit {
    * @returns The number of fragments loaded.
    */
   async updateKnowledgeBase(fileBuffer: Buffer): Promise<number> {
+    let jsonContent: any;
+
     try {
-      const fileContent = fileBuffer.toString('utf-8');
-      const parsedData = JSON.parse(fileContent) as EmbeddingChunk[];
-
-      if (
-        !Array.isArray(parsedData) ||
-        (parsedData.length > 0 && !parsedData[0].embedding)
-      ) {
-        throw new Error(
-          'El JSON no tiene la estructura de embeddings requerida.',
-        );
-      }
-
-      const dirPath = path.dirname(this.filePath);
-      if (!fs.existsSync(dirPath)) {
-        await fsp.mkdir(dirPath, { recursive: true });
-      }
-
-      await fsp.writeFile(this.filePath, fileContent, 'utf-8');
-
-      this.embeddings = parsedData;
-      this.logger.log(
-        `Base de conocimiento actualizada: ${this.embeddings.length} fragmentos nuevos.`,
-      );
-
-      return this.embeddings.length;
+      const rawContent = fileBuffer.toString('utf-8');
+      jsonContent = JSON.parse(rawContent);
     } catch (error) {
-      this.logger.error(
-        `Fallo al actualizar el conocimiento: ${(error as Error).message}`,
-      );
-      throw new BadRequestException(
-        'El archivo proporcionado no es un JSON de embeddings válido.',
-      );
+      throw new BadRequestException('El archivo no tiene un formato JSON válido.');
     }
+
+    if (!Array.isArray(jsonContent)) {
+      throw new BadRequestException('El archivo proporcionado no es un JSON de embeddings válido (se esperaba un array).');
+    }
+
+    const isValid = jsonContent.every(
+      (item) => item.text && Array.isArray(item.embedding)
+    );
+
+    if (!isValid) {
+      throw new BadRequestException('El archivo proporcionado no es un JSON de embeddings válido.');
+    }
+
+    this.embeddings = jsonContent as EmbeddingChunk[];
+    try {
+      await fsp.writeFile(this.filePath, JSON.stringify(this.embeddings));
+    } catch (error) {
+      this.logger.warn('No se pudo persistir en disco (normal en Vercel), pero los datos están en memoria.');
+    }
+
+    return this.embeddings.length;
   }
 
   /**
