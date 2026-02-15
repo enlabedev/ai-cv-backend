@@ -24,5 +24,7 @@ export const envSchema = Joi.object({
   EMAIL_PASS: Joi.string().required(),
   EMAIL_FROM: Joi.string().default('"Enrique Lazo" <noreply@tudominio.com>'),
 
+  CORS_ORIGIN: Joi.string(),
+
   EMBEDDINGS_FILE_PATH: Joi.string().default('./data/cv-embeddings.json'),
 });
