@@ -20,6 +20,7 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors({
     origin: configService.get<string>('CORS_ORIGIN', '*'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
