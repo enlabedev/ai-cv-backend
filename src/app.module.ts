@@ -28,6 +28,10 @@ import { ChatModule } from './modules/chat/chat.module';
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') === 'development',
+        ssl: configService.get<string>('NODE_ENV') === 'production',
+        extra: {
+          ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : undefined,
+        },
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
